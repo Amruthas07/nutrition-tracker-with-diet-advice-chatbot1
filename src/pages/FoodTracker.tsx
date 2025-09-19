@@ -65,7 +65,7 @@ export default function FoodTracker() {
     protein: "",
     carbs: "",
     fat: "",
-    meal: "breakfast" as const,
+    meal: "breakfast" as "breakfast" | "lunch" | "dinner" | "snack",
   });
 
   const handleAddFood = () => {
@@ -117,6 +117,72 @@ export default function FoodTracker() {
     });
   };
 
+  const handleEditFood = (food: FoodEntry) => {
+    setEditingFood(food);
+    setNewFood({
+      name: food.name,
+      calories: food.calories.toString(),
+      protein: food.protein.toString(),
+      carbs: food.carbs.toString(),
+      fat: food.fat.toString(),
+      meal: food.meal,
+    });
+    setIsAddingFood(true);
+  };
+
+  const handleUpdateFood = () => {
+    if (!newFood.name || !newFood.calories) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter at least food name and calories.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!editingFood) return;
+
+    const updatedFood: FoodEntry = {
+      ...editingFood,
+      name: newFood.name,
+      calories: parseInt(newFood.calories),
+      protein: parseInt(newFood.protein) || 0,
+      carbs: parseInt(newFood.carbs) || 0,
+      fat: parseInt(newFood.fat) || 0,
+      meal: newFood.meal,
+    };
+
+    setMeals(meals.map(meal => meal.id === editingFood.id ? updatedFood : meal));
+    setNewFood({
+      name: "",
+      calories: "",
+      protein: "",
+      carbs: "",
+      fat: "",
+      meal: "breakfast",
+    });
+    setEditingFood(null);
+    setIsAddingFood(false);
+
+    toast({
+      title: "Food Updated!",
+      description: `${updatedFood.name} has been updated successfully.`,
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingFood(null);
+    setNewFood({
+      name: "",
+      calories: "",
+      protein: "",
+      carbs: "",
+      fat: "",
+      meal: "breakfast",
+    });
+    setIsAddingFood(false);
+  };
+
   const getMealsByType = (mealType: string) => {
     return meals.filter(meal => meal.meal === mealType);
   };
@@ -153,8 +219,10 @@ export default function FoodTracker() {
         {isAddingFood && (
           <Card className="bg-gradient-card border-border shadow-soft">
             <CardHeader>
-              <CardTitle>Add New Food</CardTitle>
-              <CardDescription>Enter the details of your food item</CardDescription>
+              <CardTitle>{editingFood ? "Edit Food" : "Add New Food"}</CardTitle>
+              <CardDescription>
+                {editingFood ? "Update the details of your food item" : "Enter the details of your food item"}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -225,11 +293,23 @@ export default function FoodTracker() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button onClick={handleAddFood} className="bg-gradient-success">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Food
+                <Button 
+                  onClick={editingFood ? handleUpdateFood : handleAddFood} 
+                  className="bg-gradient-success"
+                >
+                  {editingFood ? (
+                    <>
+                      <Edit2 className="h-4 w-4 mr-2" />
+                      Update Food
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Food
+                    </>
+                  )}
                 </Button>
-                <Button variant="outline" onClick={() => setIsAddingFood(false)}>
+                <Button variant="outline" onClick={handleCancelEdit}>
                   Cancel
                 </Button>
               </div>
@@ -272,7 +352,11 @@ export default function FoodTracker() {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleEditFood(meal)}
+                        >
                           <Edit2 className="h-4 w-4" />
                         </Button>
                         <Button 
@@ -311,7 +395,11 @@ export default function FoodTracker() {
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleEditFood(meal)}
+                          >
                             <Edit2 className="h-4 w-4" />
                           </Button>
                           <Button 
