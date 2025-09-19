@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, Plus, Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useFoodContext, FoodEntry } from "@/contexts/FoodContext";
 
 interface FoodItem {
   id: number;
@@ -107,6 +108,7 @@ export default function SearchFoods() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [filteredFoods, setFilteredFoods] = useState(mockFoods);
   const { toast } = useToast();
+  const { addMeal } = useFoodContext();
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
@@ -135,9 +137,25 @@ export default function SearchFoods() {
   };
 
   const addToLog = (food: FoodItem) => {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    const foodEntry: FoodEntry = {
+      id: Date.now(),
+      name: food.name,
+      calories: food.calories,
+      protein: food.protein,
+      carbs: food.carbs,
+      fat: food.fat,
+      time: timeString,
+      meal: "snack", // Default to snack, user can edit later
+    };
+    
+    addMeal(foodEntry);
+    
     toast({
       title: "Food Added!",
-      description: `${food.name} has been added to your food log.`,
+      description: `${food.name} has been added to your food tracker.`,
     });
   };
 
