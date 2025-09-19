@@ -8,53 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Edit2, Trash2, Clock, Utensils } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface FoodEntry {
-  id: number;
-  name: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  time: string;
-  meal: "breakfast" | "lunch" | "dinner" | "snack";
-}
-
-const mockMeals: FoodEntry[] = [
-  {
-    id: 1,
-    name: "Greek Yogurt with Berries",
-    calories: 245,
-    protein: 20,
-    carbs: 30,
-    fat: 5,
-    time: "8:30 AM",
-    meal: "breakfast",
-  },
-  {
-    id: 2,
-    name: "Grilled Chicken Salad",
-    calories: 420,
-    protein: 45,
-    carbs: 15,
-    fat: 22,
-    time: "12:45 PM",
-    meal: "lunch",
-  },
-  {
-    id: 3,
-    name: "Almonds & Apple",
-    calories: 185,
-    protein: 6,
-    carbs: 15,
-    fat: 14,
-    time: "3:20 PM",
-    meal: "snack",
-  },
-];
+import { useFoodContext, FoodEntry } from "@/contexts/FoodContext";
 
 export default function FoodTracker() {
-  const [meals, setMeals] = useState<FoodEntry[]>(mockMeals);
+  const { meals, addMeal, updateMeal, deleteMeal } = useFoodContext();
   const [isAddingFood, setIsAddingFood] = useState(false);
   const [editingFood, setEditingFood] = useState<FoodEntry | null>(null);
   const { toast } = useToast();
@@ -92,7 +49,7 @@ export default function FoodTracker() {
       meal: newFood.meal,
     };
 
-    setMeals([...meals, foodEntry]);
+    addMeal(foodEntry);
     setNewFood({
       name: "",
       calories: "",
@@ -110,7 +67,7 @@ export default function FoodTracker() {
   };
 
   const handleDeleteFood = (id: number) => {
-    setMeals(meals.filter(meal => meal.id !== id));
+    deleteMeal(id);
     toast({
       title: "Food Removed",
       description: "The food entry has been deleted.",
@@ -152,7 +109,7 @@ export default function FoodTracker() {
       meal: newFood.meal,
     };
 
-    setMeals(meals.map(meal => meal.id === editingFood.id ? updatedFood : meal));
+    updateMeal(editingFood.id, updatedFood);
     setNewFood({
       name: "",
       calories: "",

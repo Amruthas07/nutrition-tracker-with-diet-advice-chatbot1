@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Navigation } from "@/components/ui/navigation";
+import { FoodProvider } from "./contexts/FoodContext";
 import Dashboard from "./pages/Dashboard";
 import FoodTracker from "./pages/FoodTracker";
 import SearchFoods from "./pages/SearchFoods";
@@ -15,9 +16,10 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
+      <FoodProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
         <div className="min-h-screen bg-background">
           <Navigation />
           <Routes>
@@ -29,7 +31,8 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
-      </BrowserRouter>
+        </BrowserRouter>
+      </FoodProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

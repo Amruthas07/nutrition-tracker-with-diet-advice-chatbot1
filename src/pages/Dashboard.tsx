@@ -4,23 +4,47 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Flame, Target, TrendingUp, Utensils, Plus, Apple } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-// Mock data - in real app, this would come from your backend/state management
-const nutritionData = {
-  calories: { consumed: 1850, target: 2200, percentage: 84 },
-  protein: { consumed: 125, target: 150, percentage: 83 },
-  carbs: { consumed: 180, target: 250, percentage: 72 },
-  fat: { consumed: 65, target: 80, percentage: 81 },
-};
-
-const recentMeals = [
-  { id: 1, name: "Greek Yogurt with Berries", calories: 245, time: "8:30 AM" },
-  { id: 2, name: "Grilled Chicken Salad", calories: 420, time: "12:45 PM" },
-  { id: 3, name: "Almonds & Apple", calories: 185, time: "3:20 PM" },
-];
+import { useFoodContext } from "@/contexts/FoodContext";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { meals, getNutritionTotals } = useFoodContext();
+  
+  const totals = getNutritionTotals();
+  
+  // Nutrition targets
+  const targets = {
+    calories: 2200,
+    protein: 150,
+    carbs: 250,
+    fat: 80,
+  };
+  
+  const nutritionData = {
+    calories: { 
+      consumed: totals.calories, 
+      target: targets.calories, 
+      percentage: Math.round((totals.calories / targets.calories) * 100) 
+    },
+    protein: { 
+      consumed: totals.protein, 
+      target: targets.protein, 
+      percentage: Math.round((totals.protein / targets.protein) * 100) 
+    },
+    carbs: { 
+      consumed: totals.carbs, 
+      target: targets.carbs, 
+      percentage: Math.round((totals.carbs / targets.carbs) * 100) 
+    },
+    fat: { 
+      consumed: totals.fat, 
+      target: targets.fat, 
+      percentage: Math.round((totals.fat / targets.fat) * 100) 
+    },
+  };
+  
+  // Get recent meals (last 3)
+  const recentMeals = meals.slice(-3).reverse();
 
   return (
     <div className="min-h-screen bg-background">
@@ -65,8 +89,8 @@ export default function Dashboard() {
           />
           <StatsCard
             title="Meals Logged"
-            value="3"
-            subtitle="today"
+            value={meals.length.toString()}
+            subtitle="total"
             icon={Utensils}
             variant="default"
           />
